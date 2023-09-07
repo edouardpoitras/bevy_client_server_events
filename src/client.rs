@@ -47,7 +47,7 @@ impl ConnectToServer {
         let server_addr = format!("{}:{}", self.server_ip, self.server_port)
             .parse()
             .unwrap();
-        let socket = UdpSocket::bind(format!("{}:0", self.server_ip)).unwrap();
+        let socket = UdpSocket::bind("0.0.0.0:0").unwrap();
         let current_time = SystemTime::now()
             .duration_since(SystemTime::UNIX_EPOCH)
             .unwrap();
