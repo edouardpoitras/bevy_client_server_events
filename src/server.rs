@@ -16,10 +16,10 @@ use crate::ChannelConfigs;
 
 #[derive(Debug, Event)]
 pub struct StartServer {
-    ip: String,
-    port: u16,
-    max_clients: usize,
-    protocol_id: u64,
+    pub ip: String,
+    pub port: u16,
+    pub max_clients: usize,
+    pub protocol_id: u64,
 }
 
 impl Default for StartServer {

@@ -16,10 +16,6 @@ Builds off of the renet/bevy_renet library and attempts to simplify the configur
 - Simplified network setup and configuration
 - Easily send any types to/from a client/server
 
-**Non-Goals**:
-- Highly performant networking library
-- Highly customizable networking library
-
 **Todo**:
 - Support secure authentication
 

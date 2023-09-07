@@ -15,11 +15,11 @@ use crate::ChannelConfigs;
 
 #[derive(Debug, Event)]
 pub struct ConnectToServer {
-    server_ip: String,
-    server_port: u16,
-    client_id: Option<u64>,
-    protocol_id: u64,
-    user_data: Option<[u8; NETCODE_USER_DATA_BYTES]>,
+    pub server_ip: String,
+    pub server_port: u16,
+    pub client_id: Option<u64>,
+    pub protocol_id: u64,
+    pub user_data: Option<[u8; NETCODE_USER_DATA_BYTES]>,
 }
 
 impl Default for ConnectToServer {
