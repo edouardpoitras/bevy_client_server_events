@@ -1,7 +1,4 @@
-use bevy::prelude::{
-    resource_exists, App, Commands, Event, EventReader, EventWriter, IntoSystemConfigs, Plugin,
-    PostUpdate, Res, ResMut,
-};
+use bevy::prelude::{Commands, Event, EventReader, EventWriter, Res, ResMut};
 use bevy_renet::renet::{
     transport::{ServerAuthentication, ServerConfig},
     ConnectionConfig, RenetServer,
@@ -9,10 +6,10 @@ use bevy_renet::renet::{
 use renet::{transport::NetcodeServerTransport, DisconnectReason, ServerEvent};
 use serde::{de::DeserializeOwned, Serialize};
 
+use std::net::UdpSocket;
 use std::time::SystemTime;
-use std::{marker::PhantomData, net::UdpSocket};
 
-use crate::ChannelConfigs;
+use crate::NetworkConfigs;
 
 #[derive(Debug, Event)]
 pub struct StartServer {
@@ -36,7 +33,7 @@ impl Default for StartServer {
 impl StartServer {
     fn get_server_and_transport(
         &self,
-        channel_configs: ChannelConfigs,
+        channel_configs: NetworkConfigs,
     ) -> (RenetServer, NetcodeServerTransport) {
         let server = RenetServer::new(ConnectionConfig {
             available_bytes_per_tick: channel_configs.available_bytes_per_tick,
@@ -90,76 +87,9 @@ pub struct SendToClients<T: Event + Serialize + DeserializeOwned> {
     pub content: T,
 }
 
-pub struct SendToClientPlugin<const I: u8, T: Event + Serialize + DeserializeOwned> {
-    _phantom: PhantomData<T>,
-}
-
-impl<const I: u8, T: Event + Serialize + DeserializeOwned> Plugin for SendToClientPlugin<I, T> {
-    fn build(&self, app: &mut App) {
-        app.add_event::<SendToClient<T>>().add_systems(
-            PostUpdate,
-            server_sends_messages_to_clients::<I, T>.run_if(resource_exists::<RenetServer>()),
-        );
-    }
-}
-
-impl<const I: u8, T: Event + Serialize + DeserializeOwned> Default for SendToClientPlugin<I, T> {
-    fn default() -> Self {
-        Self {
-            _phantom: PhantomData,
-        }
-    }
-}
-
-pub struct ReceiveFromClientPlugin<const I: u8, T: Event + Serialize + DeserializeOwned> {
-    _phantom: PhantomData<T>,
-}
-
-impl<const I: u8, T: Event + Serialize + DeserializeOwned> Plugin
-    for ReceiveFromClientPlugin<I, T>
-{
-    fn build(&self, app: &mut App) {
-        app.add_event::<ReceiveFromClient<T>>().add_systems(
-            PostUpdate,
-            server_receives_messages_from_clients::<I, T>.run_if(resource_exists::<RenetServer>()),
-        );
-    }
-}
-
-impl<const I: u8, T: Event + Serialize + DeserializeOwned> Default
-    for ReceiveFromClientPlugin<I, T>
-{
-    fn default() -> Self {
-        Self {
-            _phantom: PhantomData,
-        }
-    }
-}
-
-pub struct SendToClientsPlugin<const I: u8, T: Event + Serialize + DeserializeOwned> {
-    _phantom: PhantomData<T>,
-}
-
-impl<const I: u8, T: Event + Serialize + DeserializeOwned> Plugin for SendToClientsPlugin<I, T> {
-    fn build(&self, app: &mut App) {
-        app.add_event::<SendToClients<T>>().add_systems(
-            PostUpdate,
-            server_broadcasts_messages_to_clients::<I, T>.run_if(resource_exists::<RenetServer>()),
-        );
-    }
-}
-
-impl<const I: u8, T: Event + Serialize + DeserializeOwned> Default for SendToClientsPlugin<I, T> {
-    fn default() -> Self {
-        Self {
-            _phantom: PhantomData,
-        }
-    }
-}
-
 pub fn server_starts(
     mut start_server_events: EventReader<StartServer>,
-    channel_configs: Res<ChannelConfigs>,
+    channel_configs: Res<NetworkConfigs>,
     mut commands: Commands,
 ) {
     for start_server in start_server_events.iter() {
@@ -205,7 +135,10 @@ pub fn server_tracks_connected_and_disconnected_clients(
     }
 }
 
-fn server_receives_messages_from_clients<const I: u8, T: Event + Serialize + DeserializeOwned>(
+pub fn server_receives_messages_from_clients<
+    const I: u8,
+    T: Event + Serialize + DeserializeOwned,
+>(
     mut server: ResMut<RenetServer>,
     mut client_message_events: EventWriter<ReceiveFromClient<T>>,
 ) {
@@ -218,7 +151,7 @@ fn server_receives_messages_from_clients<const I: u8, T: Event + Serialize + Des
     }
 }
 
-fn server_sends_messages_to_clients<const I: u8, T: Event + Serialize + DeserializeOwned>(
+pub fn server_sends_messages_to_clients<const I: u8, T: Event + Serialize + DeserializeOwned>(
     mut server: ResMut<RenetServer>,
     mut send_message_to_client_events: EventReader<SendToClient<T>>,
 ) {
@@ -229,7 +162,10 @@ fn server_sends_messages_to_clients<const I: u8, T: Event + Serialize + Deserial
     }
 }
 
-fn server_broadcasts_messages_to_clients<const I: u8, T: Event + Serialize + DeserializeOwned>(
+pub fn server_broadcasts_messages_to_clients<
+    const I: u8,
+    T: Event + Serialize + DeserializeOwned,
+>(
     mut server: ResMut<RenetServer>,
     mut broadcast_message_events: EventReader<SendToClients<T>>,
 ) {
