@@ -102,7 +102,6 @@ fn update_server(
         });
     }
 }
-}
 ```
 
 You can also broadcast a message to all clients using `EventWriter<SendToClients<T>>`.
