@@ -28,6 +28,20 @@ pub mod client;
 pub mod macros;
 pub mod server;
 
+///
+/// Converts a string to a key that can be used for Authenticated connections.
+/// Key is 32 bytes long, truncating and padding occurs otherwise.
+///
+pub fn string_to_key<K: Into<String>>(string: K) -> [u8; 32] {
+    let mut key: [u8; 32] = [0; 32];
+    string
+        .into()
+        .bytes()
+        .zip(key.iter_mut())
+        .for_each(|(b, ptr)| *ptr = b);
+    key
+}
+
 pub struct ClientServerEventsPlugin {
     pub channels_config: NetworkConfigs,
 }

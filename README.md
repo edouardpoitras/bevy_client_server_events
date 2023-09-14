@@ -16,9 +16,6 @@ Builds off of the renet/bevy_renet library and attempts to simplify the configur
 - Simplified network setup and configuration
 - Easily send any types to/from a client/server
 
-**Todo**:
-- Support secure authentication
-
 ## Events
 
 The following events are useful for servers:
@@ -40,6 +37,10 @@ Both the client and the server can receive the `EventReader<NetcodeTransportErro
 
 ## Examples
 
+There are a few examples in the `examples/` directory.
+
+### Ping
+
 See the `examples/ping.rs` file for a simple ping-pong example.
 
 In one terminal session, start the server: `cargo run --example ping -- -s`
@@ -47,8 +48,6 @@ In one terminal session, start the server: `cargo run --example ping -- -s`
 In another terminal session, connect with a client: `cargo run --example ping`
 
 With the client window in focus, hit `ENTER` to send a Ping. The server will respond with a Pong.
-
-### Overview
 
 In this example, we want to send a `Ping` event to the server and receive a `Pong` event in return.
 
@@ -84,11 +83,11 @@ You can choose to start a server instance or connect to a server as a client usi
 
 ```rust,ignore
 fn start_server(mut start_server: EventWriter<StartServer>) {
-    start_server.send(StartServer::default()); // Binds to 127.0.0.1:5000 by default.
+    start_server.send(StartServer::default()); // Binds to 127.0.0.1:5000 with no encryption by default.
 }
 
 fn connect_as_client(mut connect_to_server: EventWriter<ConnectToServer>) {
-    connect_to_server.send(ConnectToServer::default()); // Connects to 127.0.0.1:5000 by default.
+    connect_to_server.send(ConnectToServer::default()); // Connects to 127.0.0.1:5000 with no encryption by default.
 }
 ```
 
@@ -122,20 +121,31 @@ fn update_server(
 }
 ```
 
-You can also broadcast a message to all clients using `EventWriter<SendToClients<T>>`.
+### Features Example
 
-Networking errors can be handled via `EventReader<NetcodeTransportError>`.
+See the `examples/features.rs` file for examples of more features, such as encryption, broadcasting, networking error handling, and client connect/disconnect events.
 
-```rust,ignore
-fn handle_errors(mut errors: EventReader<NetcodeTransportError>) {
-    for error in errors.iter() {
-        println!("Networking Error: {:?}", error);
-    }
-}
-```
+In one terminal session, start the server: `cargo run --example features -- -s`
+
+In another terminal session, connect with a client: `cargo run --example features`
+
+The server and client will use encryption to communicate.
+
+Every 500 frames the server will broadcast a message of it's frame count.
+
+With focus on the server window:
+- Hit 'ESC' to stop the server
+- Hit 'ENTER' to start the server
+
+With focus on the client window:
+- Hit 'ESC' to disconnect from the server
+- Hit 'ENTER' to reconnect to the server
+- Hit 'SPACE' to send a message of type PlayerMovement
+
+The server will respond to the PlayerMovement message with a ServerResponse message.
 
 ## Bevy Compatibility
 
 |bevy|bevy_client_server_events|
 |---|---|
-|0.11|0.4.1|
+|0.11|0.5|

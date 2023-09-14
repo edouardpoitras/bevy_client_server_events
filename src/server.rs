@@ -18,6 +18,7 @@ pub struct StartServer {
     pub max_clients: usize,
     pub protocol_id: u64,
     pub available_bytes_per_tick: u64,
+    pub private_key: Option<[u8; 32]>,
 }
 
 impl Default for StartServer {
@@ -28,6 +29,7 @@ impl Default for StartServer {
             max_clients: 64,
             protocol_id: 1,
             available_bytes_per_tick: 60_000,
+            private_key: None,
         }
     }
 }
@@ -47,11 +49,16 @@ impl StartServer {
         let current_time = SystemTime::now()
             .duration_since(SystemTime::UNIX_EPOCH)
             .unwrap();
+        let authentication = if let Some(private_key) = self.private_key {
+            ServerAuthentication::Secure { private_key }
+        } else {
+            ServerAuthentication::Unsecure
+        };
         let server_config = ServerConfig {
             max_clients: self.max_clients,
             protocol_id: self.protocol_id,
             public_addr,
-            authentication: ServerAuthentication::Unsecure,
+            authentication,
         };
         let transport = NetcodeServerTransport::new(current_time, server_config, socket).unwrap();
         (server, transport)

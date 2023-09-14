@@ -1,7 +1,7 @@
 use bevy::prelude::{Commands, Event, EventReader, EventWriter, Res, ResMut};
 use bevy_renet::renet::{transport::ClientAuthentication, ConnectionConfig, RenetClient};
 use bincode::{Decode, Encode};
-use renet::transport::{NetcodeClientTransport, NETCODE_USER_DATA_BYTES};
+use renet::transport::{ConnectToken, NetcodeClientTransport, NETCODE_USER_DATA_BYTES};
 
 use std::net::UdpSocket;
 use std::time::SystemTime;
@@ -12,9 +12,13 @@ use crate::NetworkConfigs;
 pub struct ConnectToServer {
     pub server_ip: String,
     pub server_port: u16,
-    pub client_id: Option<u64>,
     pub protocol_id: u64,
+    pub available_bytes_per_tick: u64,
+    pub client_id: Option<u64>,
     pub user_data: Option<[u8; NETCODE_USER_DATA_BYTES]>,
+    pub expire_seconds: Option<u64>,
+    pub timeout_seconds: Option<i32>,
+    pub private_key: Option<[u8; 32]>,
 }
 
 impl Default for ConnectToServer {
@@ -22,9 +26,13 @@ impl Default for ConnectToServer {
         Self {
             server_ip: "127.0.0.1".to_string(),
             server_port: 5000,
-            client_id: None,
             protocol_id: 1,
+            available_bytes_per_tick: 60_000,
+            client_id: None,
             user_data: None,
+            expire_seconds: None,
+            timeout_seconds: None,
+            private_key: None,
         }
     }
 }
@@ -35,7 +43,7 @@ impl ConnectToServer {
         channel_configs: NetworkConfigs,
     ) -> (RenetClient, NetcodeClientTransport) {
         let client = RenetClient::new(ConnectionConfig {
-            available_bytes_per_tick: 60_000,
+            available_bytes_per_tick: self.available_bytes_per_tick,
             server_channels_config: channel_configs.clone().into(),
             client_channels_config: channel_configs.into(),
         });
@@ -47,11 +55,34 @@ impl ConnectToServer {
             .duration_since(SystemTime::UNIX_EPOCH)
             .unwrap();
         let client_id = self.client_id.unwrap_or(current_time.as_millis() as u64);
-        let authentication = ClientAuthentication::Unsecure {
-            client_id,
-            protocol_id: self.protocol_id,
-            server_addr,
-            user_data: self.user_data,
+        let authentication = if let Some(private_key) = self.private_key {
+            let ud;
+            let user_data = if self.user_data.is_some() {
+                ud = self.user_data.unwrap();
+                Some(&ud)
+            } else {
+                None
+            };
+            ClientAuthentication::Secure {
+                connect_token: ConnectToken::generate(
+                    current_time,
+                    self.protocol_id,
+                    self.expire_seconds.unwrap_or(86_400), // 1 day by default
+                    client_id,
+                    self.timeout_seconds.unwrap_or(-1), // No timeout by default
+                    vec![server_addr],
+                    user_data,
+                    &private_key,
+                )
+                .unwrap(),
+            }
+        } else {
+            ClientAuthentication::Unsecure {
+                client_id,
+                protocol_id: self.protocol_id,
+                server_addr,
+                user_data: self.user_data,
+            }
         };
         let transport = NetcodeClientTransport::new(current_time, authentication, socket).unwrap();
         (client, transport)

@@ -4,6 +4,8 @@
 /// Start the server with `cargo run --example example -- -s`
 /// Start the client with `cargo run --example example`
 ///
+/// The server and client will use encryption to communicate.
+///
 /// Every 500 frames the server will broadcast a message of it's frame count.
 ///
 /// With focus on the server window:
@@ -25,7 +27,7 @@ use bevy_client_server_events::{
         ClientConnected, ClientDisconnected, ReceiveFromClient, SendToClient, SendToClients,
         StartServer, StopServer,
     },
-    Decode, Encode, NetcodeTransportError, NetworkConfig,
+    string_to_key, Decode, Encode, NetcodeTransportError, NetworkConfig,
 };
 use renet::SendType;
 use std::{env, time::Duration};
@@ -45,6 +47,8 @@ pub struct ServerResponse {
 pub struct BroadcastMessage {
     pub message: String,
 }
+
+const SHARED_KEY: &str = "secret";
 
 fn main() {
     let mut args = env::args();
@@ -84,11 +88,19 @@ fn main() {
 }
 
 fn setup_server(mut start_server: EventWriter<StartServer>) {
-    start_server.send(StartServer::default());
+    let key = string_to_key(SHARED_KEY);
+    start_server.send(StartServer {
+        private_key: Some(key),
+        ..Default::default()
+    });
 }
 
 fn setup_client(mut connect_to_server: EventWriter<ConnectToServer>) {
-    connect_to_server.send(ConnectToServer::default());
+    let key = string_to_key(SHARED_KEY);
+    connect_to_server.send(ConnectToServer {
+        private_key: Some(key),
+        ..Default::default()
+    });
 }
 
 fn update_server(
@@ -102,7 +114,11 @@ fn update_server(
         stop_server_events.send(StopServer);
         println!("Stopping server");
     } else if input.just_pressed(KeyCode::Return) {
-        start_server_events.send(StartServer::default());
+        let key = string_to_key(SHARED_KEY);
+        start_server_events.send(StartServer {
+            private_key: Some(key),
+            ..Default::default()
+        });
         println!("Starting server");
     }
 
@@ -163,7 +179,11 @@ fn update_client(
         disconnect_events.send(DisconnectFromServer);
         println!("Disconnecting from server");
     } else if input.just_pressed(KeyCode::Return) {
-        connect_events.send(ConnectToServer::default());
+        let key = string_to_key(SHARED_KEY);
+        connect_events.send(ConnectToServer {
+            private_key: Some(key),
+            ..Default::default()
+        });
         println!("Reconnecting to server");
     }
 
