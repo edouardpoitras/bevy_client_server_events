@@ -35,7 +35,7 @@ impl ConnectToServer {
         channel_configs: NetworkConfigs,
     ) -> (RenetClient, NetcodeClientTransport) {
         let client = RenetClient::new(ConnectionConfig {
-            available_bytes_per_tick: channel_configs.available_bytes_per_tick,
+            available_bytes_per_tick: 60_000,
             server_channels_config: channel_configs.clone().into(),
             client_channels_config: channel_configs.into(),
         });

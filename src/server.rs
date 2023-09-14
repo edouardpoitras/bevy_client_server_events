@@ -17,6 +17,7 @@ pub struct StartServer {
     pub port: u16,
     pub max_clients: usize,
     pub protocol_id: u64,
+    pub available_bytes_per_tick: u64,
 }
 
 impl Default for StartServer {
@@ -26,6 +27,7 @@ impl Default for StartServer {
             port: 5000,
             max_clients: 64,
             protocol_id: 1,
+            available_bytes_per_tick: 60_000,
         }
     }
 }
@@ -36,7 +38,7 @@ impl StartServer {
         channel_configs: NetworkConfigs,
     ) -> (RenetServer, NetcodeServerTransport) {
         let server = RenetServer::new(ConnectionConfig {
-            available_bytes_per_tick: channel_configs.available_bytes_per_tick,
+            available_bytes_per_tick: self.available_bytes_per_tick,
             server_channels_config: channel_configs.clone().into(),
             client_channels_config: channel_configs.into(),
         });

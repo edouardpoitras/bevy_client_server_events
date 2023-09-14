@@ -70,28 +70,22 @@ impl Plugin for ClientServerEventsPlugin {
 }
 
 #[derive(Clone, Resource)]
-pub struct NetworkConfigs {
-    pub configs: Vec<NetworkConfig>,
-    pub available_bytes_per_tick: u64,
-}
+pub struct NetworkConfigs(pub Vec<NetworkConfig>);
 
 impl Default for NetworkConfigs {
     fn default() -> Self {
-        Self {
-            configs: vec![NetworkConfig::default()],
-            available_bytes_per_tick: 60_000,
-        }
+        Self(vec![NetworkConfig::default()])
     }
 }
 
 impl From<NetworkConfigs> for Vec<renet::ChannelConfig> {
     fn from(val: NetworkConfigs) -> Self {
         let mut renet_configs = Vec::new();
-        for i in 0..val.configs.len().min(u8::MAX as usize) {
+        for i in 0..val.0.len().min(u8::MAX as usize) {
             renet_configs.push(renet::ChannelConfig {
                 channel_id: i as u8,
-                max_memory_usage_bytes: val.configs[i].max_memory_usage_bytes,
-                send_type: val.configs[i].send_type.clone(),
+                max_memory_usage_bytes: val.0[i].max_memory_usage_bytes,
+                send_type: val.0[i].send_type.clone(),
             });
         }
         renet_configs

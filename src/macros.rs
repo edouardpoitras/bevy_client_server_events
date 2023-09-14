@@ -75,10 +75,7 @@ macro_rules! client_server_events_plugin {
         client_server_events_plugin!(@step START, vec_channel_configs, $app, $($type => $channel_config),*);
         $app.add_plugins(
             bevy_client_server_events::ClientServerEventsPlugin {
-                channels_config: bevy_client_server_events::NetworkConfigs {
-                    configs: vec_channel_configs,
-                    ..Default::default()
-                },
+                channels_config: bevy_client_server_events::NetworkConfigs(vec_channel_configs),
             }
         );
     };
