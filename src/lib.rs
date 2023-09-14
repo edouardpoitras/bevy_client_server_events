@@ -1,21 +1,26 @@
 #![doc = include_str!("../README.md")]
 use std::time::Duration;
 
+use renet::{RenetClient, RenetServer};
+
 use bevy::prelude::{not, resource_exists, App, IntoSystemConfigs, Plugin, PostUpdate, Resource};
+
 use bevy_renet::{
     transport::{NetcodeClientPlugin, NetcodeServerPlugin},
     RenetClientPlugin, RenetServerPlugin,
 };
+
 use client::{
     client_disconnects_from_server, client_initiates_connection_to_server, ConnectToServer,
     DisconnectFromServer,
 };
-use renet::{RenetClient, RenetServer};
+
 use server::{
     server_starts, server_stops, server_tracks_connected_and_disconnected_clients, ClientConnected,
     ClientDisconnected, StartServer, StopServer,
 };
 
+pub use bincode::{Decode, Encode};
 pub use renet::{
     transport::NetcodeTransportError, RenetClient as Client, RenetServer as Server, SendType,
 };

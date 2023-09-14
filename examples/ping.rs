@@ -12,15 +12,14 @@ use bevy_client_server_events::{
     client::{ConnectToServer, ReceiveFromServer, SendToServer},
     client_server_events_plugin,
     server::{ReceiveFromClient, SendToClient, StartServer},
-    NetworkConfig,
+    Decode, Encode, NetworkConfig,
 };
-use serde::{Deserialize, Serialize};
 use std::env;
 
-#[derive(Debug, Event, Serialize, Deserialize)]
+#[derive(Debug, Event, Encode, Decode)]
 pub struct Ping;
 
-#[derive(Debug, Event, Serialize, Deserialize)]
+#[derive(Debug, Event, Encode, Decode)]
 pub struct Pong;
 
 fn main() {

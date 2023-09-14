@@ -1,8 +1,7 @@
 use bevy::prelude::{Commands, Event, EventReader, EventWriter, Res, ResMut};
 use bevy_renet::renet::{transport::ClientAuthentication, ConnectionConfig, RenetClient};
+use bincode::{Decode, Encode};
 use renet::transport::{NetcodeClientTransport, NETCODE_USER_DATA_BYTES};
-use serde::de::DeserializeOwned;
-use serde::Serialize;
 
 use std::net::UdpSocket;
 use std::time::SystemTime;
@@ -63,12 +62,12 @@ impl ConnectToServer {
 pub struct DisconnectFromServer;
 
 #[derive(Debug, Event)]
-pub struct ReceiveFromServer<T: Event + Serialize + DeserializeOwned> {
+pub struct ReceiveFromServer<T: Event + Encode + Decode> {
     pub content: T,
 }
 
 #[derive(Debug, Event)]
-pub struct SendToServer<T: Event + Serialize + DeserializeOwned> {
+pub struct SendToServer<T: Event + Encode + Decode> {
     pub content: T,
 }
 
@@ -99,29 +98,26 @@ pub fn client_disconnects_from_server(
     }
 }
 
-pub fn client_receives_messages_from_server<
-    const I: u8,
-    T: Event + Serialize + DeserializeOwned,
->(
+pub fn client_receives_messages_from_server<const I: u8, T: Event + Encode + Decode>(
     mut client: ResMut<RenetClient>,
     mut server_message_received_events: EventWriter<ReceiveFromServer<T>>,
 ) {
     while let Some(message) = client.receive_message(I) {
         let (server_message, _) =
-            bincode::serde::decode_from_slice(&message, bincode::config::standard()).unwrap();
+            bincode::decode_from_slice(&message, bincode::config::standard()).unwrap();
         server_message_received_events.send(ReceiveFromServer {
             content: server_message,
         });
     }
 }
 
-pub fn client_sends_messages_to_server<const I: u8, T: Event + Serialize + DeserializeOwned>(
+pub fn client_sends_messages_to_server<const I: u8, T: Event + Encode + Decode>(
     mut client: ResMut<RenetClient>,
     mut send_message_to_server_events: EventReader<SendToServer<T>>,
 ) {
     for message in send_message_to_server_events.iter() {
         let payload =
-            bincode::serde::encode_to_vec(&message.content, bincode::config::standard()).unwrap();
+            bincode::encode_to_vec(&message.content, bincode::config::standard()).unwrap();
         client.send_message(I, payload);
     }
 }

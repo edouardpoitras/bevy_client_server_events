@@ -25,24 +25,23 @@ use bevy_client_server_events::{
         ClientConnected, ClientDisconnected, ReceiveFromClient, SendToClient, SendToClients,
         StartServer, StopServer,
     },
-    NetcodeTransportError, NetworkConfig,
+    Decode, Encode, NetcodeTransportError, NetworkConfig,
 };
 use renet::SendType;
-use serde::{Deserialize, Serialize};
 use std::{env, time::Duration};
 
-#[derive(Debug, Event, Serialize, Deserialize)]
+#[derive(Debug, Event, Encode, Decode)]
 pub struct PlayerMovement {
     pub x: f32,
     pub y: f32,
 }
 
-#[derive(Event, Serialize, Deserialize)]
+#[derive(Event, Encode, Decode)]
 pub struct ServerResponse {
     pub message: String,
 }
 
-#[derive(Event, Serialize, Deserialize)]
+#[derive(Event, Encode, Decode)]
 pub struct BroadcastMessage {
     pub message: String,
 }

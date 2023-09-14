@@ -3,8 +3,8 @@ use bevy_renet::renet::{
     transport::{ServerAuthentication, ServerConfig},
     ConnectionConfig, RenetServer,
 };
+use bincode::{Decode, Encode};
 use renet::{transport::NetcodeServerTransport, DisconnectReason, ServerEvent};
-use serde::{de::DeserializeOwned, Serialize};
 
 use std::net::UdpSocket;
 use std::time::SystemTime;
@@ -71,19 +71,19 @@ pub struct ClientDisconnected {
 }
 
 #[derive(Debug, Event)]
-pub struct ReceiveFromClient<T: Event + Serialize + DeserializeOwned> {
+pub struct ReceiveFromClient<T: Event + Encode + Decode> {
     pub client_id: u64,
     pub content: T,
 }
 
 #[derive(Debug, Event)]
-pub struct SendToClient<T: Event + Serialize + DeserializeOwned> {
+pub struct SendToClient<T: Event + Encode + Decode> {
     pub client_id: u64,
     pub content: T,
 }
 
 #[derive(Debug, Event)]
-pub struct SendToClients<T: Event + Serialize + DeserializeOwned> {
+pub struct SendToClients<T: Event + Encode + Decode> {
     pub content: T,
 }
 
@@ -135,43 +135,37 @@ pub fn server_tracks_connected_and_disconnected_clients(
     }
 }
 
-pub fn server_receives_messages_from_clients<
-    const I: u8,
-    T: Event + Serialize + DeserializeOwned,
->(
+pub fn server_receives_messages_from_clients<const I: u8, T: Event + Encode + Decode>(
     mut server: ResMut<RenetServer>,
     mut client_message_events: EventWriter<ReceiveFromClient<T>>,
 ) {
     for client_id in server.clients_id().into_iter() {
         while let Some(message) = server.receive_message(client_id, I) {
             let (content, _): (T, usize) =
-                bincode::serde::decode_from_slice(&message, bincode::config::standard()).unwrap();
+                bincode::decode_from_slice(&message, bincode::config::standard()).unwrap();
             client_message_events.send(ReceiveFromClient { client_id, content });
         }
     }
 }
 
-pub fn server_sends_messages_to_clients<const I: u8, T: Event + Serialize + DeserializeOwned>(
+pub fn server_sends_messages_to_clients<const I: u8, T: Event + Encode + Decode>(
     mut server: ResMut<RenetServer>,
     mut send_message_to_client_events: EventReader<SendToClient<T>>,
 ) {
     for message in send_message_to_client_events.iter() {
         let payload =
-            bincode::serde::encode_to_vec(&message.content, bincode::config::standard()).unwrap();
+            bincode::encode_to_vec(&message.content, bincode::config::standard()).unwrap();
         server.send_message(message.client_id, I, payload);
     }
 }
 
-pub fn server_broadcasts_messages_to_clients<
-    const I: u8,
-    T: Event + Serialize + DeserializeOwned,
->(
+pub fn server_broadcasts_messages_to_clients<const I: u8, T: Event + Encode + Decode>(
     mut server: ResMut<RenetServer>,
     mut broadcast_message_events: EventReader<SendToClients<T>>,
 ) {
     for message in broadcast_message_events.iter() {
         let payload =
-            bincode::serde::encode_to_vec(&message.content, bincode::config::standard()).unwrap();
+            bincode::encode_to_vec(&message.content, bincode::config::standard()).unwrap();
         server.broadcast_message(I, payload);
     }
 }

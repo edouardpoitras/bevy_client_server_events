@@ -17,7 +17,6 @@ Builds off of the renet/bevy_renet library and attempts to simplify the configur
 - Easily send any types to/from a client/server
 
 **Todo**:
-- Proper derive trait to enforce Event + Serialize + Deserialize
 - Support secure authentication
 
 ## Examples
@@ -35,14 +34,14 @@ With the client window in focus, hit `ENTER` to send a Ping. The server will res
 In this example, we want to send a `Ping` event to the server and receive a `Pong` event in return.
 
 ```rust,ignore
-#[derive(Event, Serialize, Deserialize)]
+#[derive(Event, Encode, Decode)]
 pub struct Ping;
 
-#[derive(Event, Serialize, Deserialize)]
+#[derive(Event, Encode, Decode)]
 pub struct Pong;
 ```
 
-As of version 0.4, the `Event`, `Serialize`, and `Deserialize` derive is required.
+As of version 0.4, the `Event`, `Encode`, and `Decode` derives are required.
 
 When setting up our `App`, we need to feed it to a macro and provide all the events to be sent over the network.
 
@@ -121,4 +120,4 @@ fn handle_errors(mut errors: EventReader<NetcodeTransportError>) {
 
 |bevy|bevy_client_server_events|
 |---|---|
-|0.11|0.4|
+|0.11|0.4.1|
