@@ -19,6 +19,25 @@ Builds off of the renet/bevy_renet library and attempts to simplify the configur
 **Todo**:
 - Support secure authentication
 
+## Events
+
+The following events are useful for servers:
+- `EventWriter<StartServer>` - Send this event to start a server
+- `EventWriter<StopServer>` - Send this event to stop a running server
+- `EventReader<ClientConnected>` - Received whenever a new client is connected
+- `EventReader<ClientDisconnected>` - Received whenever a client has disconnected
+- `EventReader<ReceiveFromClient<T>>` - Received whenever a client has sent type T to the server
+- `EventWriter<SendToClient<T>>` - Send this event to have a particular client receive type T
+- `EventWriter<SendToClients<T>>` - Send this event to have all connected clients receive type T
+
+The following events are useful for clients:
+- `EventWriter<ConnectToServer>` - Send this event to connect to a server
+- `EventWriter<DisconnectFromServer>` - Send this event to disconnect from the server
+- `EventWriter<SendToServer<T>>` - Send this event to have the server receive type T
+- `EventReader<ReceiveFromServer<T>>` - Received whenever the server has sent type T to the client
+
+Both the client and the server can receive the `EventReader<NetcodeTransportError>` events to deal with networking errors.
+
 ## Examples
 
 See the `examples/ping.rs` file for a simple ping-pong example.
@@ -41,7 +60,7 @@ pub struct Ping;
 pub struct Pong;
 ```
 
-As of version 0.4, the `Event`, `Encode`, and `Decode` derives are required.
+As of version 0.4.1, the `Event`, `Encode`, and `Decode` derives are required.
 
 When setting up our `App`, we need to feed it to a macro and provide all the events to be sent over the network.
 
