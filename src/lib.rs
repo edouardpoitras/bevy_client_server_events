@@ -3,7 +3,10 @@ use std::time::Duration;
 
 use renet::{RenetClient, RenetServer};
 
-use bevy::prelude::{not, resource_exists, App, IntoSystemConfigs, Plugin, PostUpdate, Resource};
+use bevy::prelude::{
+    not, resource_exists, resource_removed, App, IntoSystemConfigs, Plugin, PostUpdate, PreUpdate,
+    Resource,
+};
 
 use bevy_renet::{
     transport::{NetcodeClientPlugin, NetcodeServerPlugin},
@@ -16,8 +19,9 @@ use client::{
 };
 
 use server::{
-    server_starts, server_stops, server_tracks_connected_and_disconnected_clients, ClientConnected,
-    ClientDisconnected, StartServer, StopServer,
+    cleanup_transport, server_starts, server_stops,
+    server_tracks_connected_and_disconnected_clients, ClientConnected, ClientDisconnected,
+    StartServer, StopServer,
 };
 
 pub use bincode::{Decode, Encode};
@@ -59,6 +63,10 @@ impl Plugin for ClientServerEventsPlugin {
             .add_event::<ClientDisconnected>()
             .add_event::<ConnectToServer>()
             .add_event::<DisconnectFromServer>()
+            .add_systems(
+                PreUpdate,
+                cleanup_transport.run_if(resource_removed::<renet::RenetServer>()),
+            )
             .add_systems(
                 PostUpdate,
                 server_starts.run_if(not(resource_exists::<RenetServer>())),

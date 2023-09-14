@@ -118,7 +118,9 @@ pub fn server_stops(
         server.disconnect_all();
         transport.disconnect_all(&mut server);
         commands.remove_resource::<RenetServer>();
-        commands.remove_resource::<NetcodeServerTransport>();
+        // bevy_renet crashes due to missing resource if we remove the transport on this tick.
+        // Removing it on the next tick instead (see cleanup_transport).
+        //commands.remove_resource::<NetcodeServerTransport>();
     }
 }
 
@@ -177,4 +179,8 @@ pub fn server_broadcasts_messages_to_clients<const I: u8, T: Event + Encode + De
             bincode::encode_to_vec(&message.content, bincode::config::standard()).unwrap();
         server.broadcast_message(I, payload);
     }
+}
+
+pub fn cleanup_transport(mut commands: Commands) {
+    commands.remove_resource::<renet::transport::NetcodeServerTransport>();
 }
