@@ -125,6 +125,7 @@ pub fn client_disconnects_from_server(
         client.disconnect();
         transport.disconnect();
         commands.remove_resource::<RenetClient>();
+        // TODO: See if this is a bug waiting to happen like in src/server.rs
         commands.remove_resource::<NetcodeClientTransport>();
     }
 }

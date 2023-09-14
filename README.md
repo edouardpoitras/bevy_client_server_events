@@ -59,9 +59,7 @@ pub struct Ping;
 pub struct Pong;
 ```
 
-As of version 0.4.1, the `Event`, `Encode`, and `Decode` derives are required.
-
-When setting up our `App`, we need to feed it to a macro and provide all the events to be sent over the network.
+When setting up our `App`, we need to pass it to the `client_server_events_plugin` macro and provide all the types to be sent over the network.
 
 ```rust,ignore
 fn main() {
@@ -134,15 +132,15 @@ The server and client will use encryption to communicate.
 Every 500 frames the server will broadcast a message of it's frame count.
 
 With focus on the server window:
-- Hit 'ESC' to stop the server
-- Hit 'ENTER' to start the server
+- Hit `ESC` to stop the server
+- Hit `ENTER` to start the server
 
 With focus on the client window:
-- Hit 'ESC' to disconnect from the server
-- Hit 'ENTER' to reconnect to the server
-- Hit 'SPACE' to send a message of type PlayerMovement
+- Hit `ESC` to disconnect from the server
+- Hit `ENTER` to reconnect to the server
+- Hit `SPACE` to send a message of type `PlayerMovement`
 
-The server will respond to the PlayerMovement message with a ServerResponse message.
+The server will respond to the `PlayerMovement` message with a `ServerResponse` message.
 
 ## Bevy Compatibility
 
