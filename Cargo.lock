@@ -405,13 +405,14 @@ dependencies = [
 
 [[package]]
 name = "bevy_client_server_events"
-version = "0.5.2"
+version = "0.5.3"
 dependencies = [
  "bevy",
  "bevy_renet",
  "bincode",
  "paste",
  "renet",
+ "serde",
 ]
 
 [[package]]

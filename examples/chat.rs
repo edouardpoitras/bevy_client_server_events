@@ -8,8 +8,9 @@ use bevy_client_server_events::{
     client::{ConnectToServer, ReceiveFromServer, SendToServer},
     client_server_events_plugin,
     server::{ClientConnected, ClientDisconnected, ReceiveFromClient, SendToClients, StartServer},
-    Decode, Encode, NetworkConfig,
+    NetworkConfig,
 };
+use serde::{Deserialize, Serialize};
 use std::env;
 
 #[derive(Resource)]
@@ -18,7 +19,7 @@ struct IpPort {
     port: u16,
 }
 
-#[derive(Event, Encode, Decode)]
+#[derive(Event, Serialize, Deserialize)]
 pub struct Message(String);
 
 #[derive(Component)]

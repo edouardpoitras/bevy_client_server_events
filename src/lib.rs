@@ -24,7 +24,6 @@ use server::{
     StartServer, StopServer,
 };
 
-pub use bincode::{Decode, Encode};
 pub use paste;
 pub use renet::{
     transport::NetcodeTransportError, RenetClient as Client, RenetServer as Server, SendType,

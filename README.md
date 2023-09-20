@@ -16,6 +16,9 @@ Builds off of the renet/bevy_renet library and attempts to simplify the configur
 - Simplified network setup and configuration
 - Easily send any types to/from a client/server
 
+**Requirements**:
+- `serde` to derive `Serialize` and `Deserialize` on your types
+
 ## Events
 
 The following events are useful for servers:
@@ -52,10 +55,10 @@ With the client window in focus, hit `ENTER` to send a Ping. The server will res
 In this example, we want to send a `Ping` event to the server and receive a `Pong` event in return.
 
 ```rust,ignore
-#[derive(Event, Encode, Decode)]
+#[derive(Event, Serialize, Deserialize)]
 pub struct Ping;
 
-#[derive(Event, Encode, Decode)]
+#[derive(Event, Serialize, Deserialize)]
 pub struct Pong;
 ```
 
