@@ -142,6 +142,18 @@ With focus on the client window:
 
 The server will respond to the `PlayerMovement` message with a `ServerResponse` message.
 
+## Other Networking Crates
+
+This crate was created because I wanted the quickest and easiest way to send types through a network.
+
+Other solutions seem to have me bogged down in transport/networking/channel details.
+
+This crate is ideal for prototyping and small client-server games.
+
+An alternative with more bells & whistles would be [bevy_replicon](https://github.com/lifescapegame/bevy_replicon).
+
+A mature alternative with more customizability would be [bevy_renet](https://github.com/lucaspoffo/renet/tree/master/bevy_renet).
+
 ## Bevy Compatibility
 
 |bevy|bevy_client_server_events|
