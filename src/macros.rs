@@ -62,7 +62,7 @@ macro_rules! client_server_events_plugin {
             bevy::prelude::IntoSystemConfigs::run_if(bevy_client_server_events::client::client_receives_messages_from_server::<$idx, $head_type>, bevy::prelude::resource_exists::<bevy_client_server_events::Client>()),
         );
 
-        paste::paste! {
+        bevy_client_server_events::paste::paste! {
             const [<$head_type:upper _IDX>]: u8 = $idx + 1; // Increment our index every type we iterate
             client_server_events_plugin!(@step [<$head_type:upper _IDX>], $vec_channel_configs, $app, $($tail_type => $tail_channel_config),*);
         }
