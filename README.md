@@ -102,7 +102,7 @@ fn update_client(
     // ...
     send_ping.send(SendToServer { content: Ping });
     // ...
-    for ReceiveFromServer { content } in receive_pong.iter() {
+    for ReceiveFromServer { content } in receive_pong.read() {
         // Do something with content (Pong).
         // ...
     }
@@ -112,7 +112,7 @@ fn update_server(
     mut receive_ping: EventReader<ReceiveFromClient<Ping>>,
     mut send_pong: EventWriter<SendToClient<Pong>>,
 ) {
-    for ReceiveFromClient { client_id, content } in receive_ping.iter() {
+    for ReceiveFromClient { client_id, content } in receive_ping.read() {
         // Do something with content (Ping).
         send_pong.send(SendToClient {
             client_id,
@@ -161,4 +161,5 @@ A mature alternative with more customizability would be [bevy_renet](https://git
 
 |bevy|bevy_client_server_events|
 |---|---|
+|0.12|0.6|
 |0.11|0.5|

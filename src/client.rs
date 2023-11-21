@@ -108,7 +108,7 @@ pub fn client_initiates_connection_to_server(
     channel_configs: Res<NetworkConfigs>,
     mut commands: Commands,
 ) {
-    for connect_to_server in connect_to_server_events.iter() {
+    for connect_to_server in connect_to_server_events.read() {
         let (client, transport) =
             connect_to_server.get_client_and_transport(channel_configs.clone());
         commands.insert_resource(client);
@@ -122,7 +122,7 @@ pub fn client_disconnects_from_server(
     mut transport: ResMut<NetcodeClientTransport>,
     mut commands: Commands,
 ) {
-    for _ in disconnect_from_server_events.iter() {
+    for _ in disconnect_from_server_events.read() {
         client.disconnect();
         transport.disconnect();
         commands.remove_resource::<RenetClient>();
@@ -151,7 +151,7 @@ pub fn client_sends_messages_to_server<const I: u8, T: Event + Serialize + Deser
     mut client: ResMut<RenetClient>,
     mut send_message_to_server_events: EventReader<SendToServer<T>>,
 ) {
-    for message in send_message_to_server_events.iter() {
+    for message in send_message_to_server_events.read() {
         let payload =
             bincode::serde::encode_to_vec(&message.content, bincode::config::standard()).unwrap();
         client.send_message(I, payload);

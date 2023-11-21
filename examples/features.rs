@@ -123,7 +123,7 @@ fn update_server(
         println!("Starting server");
     }
 
-    for ReceiveFromClient { client_id, content } in player_movement_events.iter() {
+    for ReceiveFromClient { client_id, content } in player_movement_events.read() {
         println!(
             "Player Movement Received from Client {}: {:?}",
             *client_id, content
@@ -155,10 +155,10 @@ fn log_connections_on_server(
     mut player_connected: EventReader<ClientConnected>,
     mut player_disconnected: EventReader<ClientDisconnected>,
 ) {
-    for player_connected in player_connected.iter() {
+    for player_connected in player_connected.read() {
         println!("Player Connected: {:?}", player_connected);
     }
-    for player_disconnected in player_disconnected.iter() {
+    for player_disconnected in player_disconnected.read() {
         println!("Player Disconnected: {:?}", player_disconnected);
     }
 }
@@ -188,17 +188,17 @@ fn update_client(
         println!("Reconnecting to server");
     }
 
-    for server_response in server_response_events.iter() {
+    for server_response in server_response_events.read() {
         println!("Server Response: {}", server_response.content.message);
     }
 
-    for broadcast_message in broadcast_events.iter() {
+    for broadcast_message in broadcast_events.read() {
         println!("Broadcast: {}", broadcast_message.content.message);
     }
 }
 
 fn handle_errors(mut errors: EventReader<NetcodeTransportError>) {
-    for error in errors.iter() {
+    for error in errors.read() {
         println!("Networking Error: {:?}", error);
     }
 }

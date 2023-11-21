@@ -125,14 +125,14 @@ fn update_server(
     for ReceiveFromClient {
         client_id,
         content: Message(message),
-    } in client_messages.iter()
+    } in client_messages.read()
     {
         println!("{} sent: {}", client_id, message);
         server_messages.send(SendToClients {
             content: Message(format!("> {}: {}", client_id, message)),
         });
     }
-    for ClientConnected { client_id } in client_connected.iter() {
+    for ClientConnected { client_id } in client_connected.read() {
         println!("{} has connected", client_id);
         server_messages.send(SendToClients {
             content: Message(format!("> {} has joined the chat!", client_id)),
@@ -141,7 +141,7 @@ fn update_server(
     for ClientDisconnected {
         client_id,
         reason: _,
-    } in client_disconnected.iter()
+    } in client_disconnected.read()
     {
         println!("{} has disconnected", client_id);
         server_messages.send(SendToClients {
@@ -156,7 +156,7 @@ fn receive_messages(
 ) {
     for ReceiveFromServer {
         content: Message(message),
-    } in server_messages.iter()
+    } in server_messages.read()
     {
         let current_text = &chat_area.single_mut().sections[0].value.clone();
         let mut lines: Vec<&str> = current_text.split('\n').collect();
@@ -186,7 +186,7 @@ fn handle_input(
     if keyboard.just_pressed(KeyCode::Back) {
         text.sections[1].value.pop();
     }
-    for ReceivedCharacter { char, window: _ } in characters.iter() {
+    for ReceivedCharacter { char, window: _ } in characters.read() {
         if !char.is_control() {
             text.sections[1].value.push(*char);
         }

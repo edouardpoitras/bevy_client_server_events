@@ -1,7 +1,7 @@
 use bevy::prelude::{Commands, Event, EventReader, EventWriter, Res, ResMut};
 use bevy_renet::renet::{
     transport::{ServerAuthentication, ServerConfig},
-    ConnectionConfig, RenetServer,
+    ClientId, ConnectionConfig, RenetServer,
 };
 use renet::{transport::NetcodeServerTransport, DisconnectReason, ServerEvent};
 use serde::{de::DeserializeOwned, Serialize};
@@ -55,12 +55,14 @@ impl StartServer {
             ServerAuthentication::Unsecure
         };
         let server_config = ServerConfig {
+            current_time,
             max_clients: self.max_clients,
             protocol_id: self.protocol_id,
-            public_addr,
+            public_addresses: vec![public_addr],
             authentication,
         };
-        let transport = NetcodeServerTransport::new(current_time, server_config, socket).unwrap();
+
+        let transport = NetcodeServerTransport::new(server_config, socket).unwrap();
         (server, transport)
     }
 }
@@ -101,7 +103,7 @@ pub fn server_starts(
     channel_configs: Res<NetworkConfigs>,
     mut commands: Commands,
 ) {
-    for start_server in start_server_events.iter() {
+    for start_server in start_server_events.read() {
         let (server, transport) = start_server.get_server_and_transport(channel_configs.clone());
         commands.insert_resource(server);
         commands.insert_resource(transport);
@@ -114,7 +116,7 @@ pub fn server_stops(
     mut transport: ResMut<NetcodeServerTransport>,
     mut commands: Commands,
 ) {
-    for _ in stop_server_events.iter() {
+    for _ in stop_server_events.read() {
         server.disconnect_all();
         transport.disconnect_all(&mut server);
         commands.remove_resource::<RenetServer>();
@@ -129,16 +131,16 @@ pub fn server_tracks_connected_and_disconnected_clients(
     mut client_connected_events: EventWriter<ClientConnected>,
     mut client_disconnected_events: EventWriter<ClientDisconnected>,
 ) {
-    for server_event in server_events.iter() {
+    for server_event in server_events.read() {
         match server_event {
             ServerEvent::ClientConnected { client_id } => {
                 client_connected_events.send(ClientConnected {
-                    client_id: *client_id,
+                    client_id: client_id.raw(),
                 });
             },
             ServerEvent::ClientDisconnected { client_id, reason } => {
                 client_disconnected_events.send(ClientDisconnected {
-                    client_id: *client_id,
+                    client_id: client_id.raw(),
                     reason: *reason,
                 });
             },
@@ -157,7 +159,10 @@ pub fn server_receives_messages_from_clients<
         while let Some(message) = server.receive_message(client_id, I) {
             let (content, _): (T, usize) =
                 bincode::serde::decode_from_slice(&message, bincode::config::standard()).unwrap();
-            client_message_events.send(ReceiveFromClient { client_id, content });
+            client_message_events.send(ReceiveFromClient {
+                client_id: client_id.raw(),
+                content,
+            });
         }
     }
 }
@@ -166,10 +171,10 @@ pub fn server_sends_messages_to_clients<const I: u8, T: Event + Serialize + Dese
     mut server: ResMut<RenetServer>,
     mut send_message_to_client_events: EventReader<SendToClient<T>>,
 ) {
-    for message in send_message_to_client_events.iter() {
+    for message in send_message_to_client_events.read() {
         let payload =
             bincode::serde::encode_to_vec(&message.content, bincode::config::standard()).unwrap();
-        server.send_message(message.client_id, I, payload);
+        server.send_message(ClientId::from_raw(message.client_id), I, payload);
     }
 }
 
@@ -180,7 +185,7 @@ pub fn server_broadcasts_messages_to_clients<
     mut server: ResMut<RenetServer>,
     mut broadcast_message_events: EventReader<SendToClients<T>>,
 ) {
-    for message in broadcast_message_events.iter() {
+    for message in broadcast_message_events.read() {
         let payload =
             bincode::serde::encode_to_vec(&message.content, bincode::config::standard()).unwrap();
         server.broadcast_message(I, payload);

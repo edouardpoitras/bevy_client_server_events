@@ -58,7 +58,7 @@ fn update_server(
     mut ping: EventReader<ReceiveFromClient<Ping>>,
     mut pong: EventWriter<SendToClient<Pong>>,
 ) {
-    for received in ping.iter() {
+    for received in ping.read() {
         println!("Client {} Sent: {:?}", received.client_id, received.content);
         pong.send(SendToClient {
             client_id: received.client_id,
@@ -75,7 +75,7 @@ fn update_client(
     if input.just_pressed(KeyCode::Return) {
         ping.send(SendToServer { content: Ping });
     }
-    for response in pong.iter() {
+    for response in pong.read() {
         println!("Server Response: {:?}", response.content);
     }
 }
