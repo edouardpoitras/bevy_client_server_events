@@ -69,24 +69,24 @@ impl Plugin for ClientServerEventsPlugin {
             )
             .add_systems(
                 PostUpdate,
-                server_starts.run_if(not(resource_exists::<RenetServer>())),
+                server_starts.run_if(not(resource_exists::<RenetServer>)),
             )
             .add_systems(
                 PostUpdate,
-                server_stops.run_if(resource_exists::<RenetServer>()),
+                server_stops.run_if(resource_exists::<RenetServer>),
             )
             .add_systems(
                 PostUpdate,
                 server_tracks_connected_and_disconnected_clients
-                    .run_if(resource_exists::<RenetServer>()),
+                    .run_if(resource_exists::<RenetServer>),
             )
             .add_systems(
                 PostUpdate,
-                client_initiates_connection_to_server.run_if(not(resource_exists::<RenetClient>())),
+                client_initiates_connection_to_server.run_if(not(resource_exists::<RenetClient>)),
             )
             .add_systems(
                 PostUpdate,
-                client_disconnects_from_server.run_if(resource_exists::<RenetClient>()),
+                client_disconnects_from_server.run_if(resource_exists::<RenetClient>),
             );
     }
 }

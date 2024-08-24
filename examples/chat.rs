@@ -3,7 +3,7 @@
 /// Start the server with `cargo run --example chat -- -s 127.0.0.1 5000`
 /// Start the clients with `cargo run --example chat -- -c 127.0.0.1 5000`
 ///
-use bevy::prelude::*;
+use bevy::{input::keyboard::{Key, KeyboardInput}, prelude::*};
 use bevy_client_server_events::{
     client::{ConnectToServer, ReceiveFromServer, SendToServer},
     client_server_events_plugin,
@@ -91,7 +91,7 @@ fn setup_client(
                 "",
                 TextStyle {
                     font_size: 24.0,
-                    color: Color::rgb(0.8, 0.8, 0.8),
+                    color: Color::srgb(0.8, 0.8, 0.8),
                     ..Default::default()
                 },
             ),
@@ -136,7 +136,7 @@ fn update_server(
         println!("{} has connected", client_id);
         server_messages.send(SendToClients {
             content: Message(format!("> {} has joined the chat!", client_id)),
-        })
+        });
     }
     for ClientDisconnected {
         client_id,
@@ -146,7 +146,7 @@ fn update_server(
         println!("{} has disconnected", client_id);
         server_messages.send(SendToClients {
             content: Message(format!("> {} has left the chat!", client_id)),
-        })
+        });
     }
 }
 
@@ -170,25 +170,38 @@ fn receive_messages(
 }
 
 fn handle_input(
-    mut characters: EventReader<ReceivedCharacter>,
-    keyboard: Res<Input<KeyCode>>,
+    mut characters: EventReader<KeyboardInput>,
+    keyboard: Res<ButtonInput<KeyCode>>,
     mut client_messages: EventWriter<SendToServer<Message>>,
     mut text_input: Query<&mut Text, (With<TextInput>, Without<ChatArea>)>,
 ) {
     let mut text = text_input.single_mut();
-    if keyboard.just_pressed(KeyCode::Return) {
+    if keyboard.just_pressed(KeyCode::Enter) {
         let message = text.sections[1].value.clone();
         text.sections[1].value.clear();
         client_messages.send(SendToServer {
             content: Message(message),
         });
     }
-    if keyboard.just_pressed(KeyCode::Back) {
+    if keyboard.just_pressed(KeyCode::Backspace) {
         text.sections[1].value.pop();
     }
-    for ReceivedCharacter { char, window: _ } in characters.read() {
-        if !char.is_control() {
-            text.sections[1].value.push(*char);
+    for KeyboardInput { key_code: _, logical_key, state, window: _} in characters.read() {
+        // Only check for characters when the key is pressed.
+        if !state.is_pressed() {
+            continue;
+        }
+
+        // Note that some keys such as `Space` and `Tab` won't be detected as a character.
+        // Instead, check for them as separate enum variants.
+        match &logical_key {
+            Key::Character(character) => {
+                text.sections[1].value.push(character.chars().last().unwrap());
+            },
+            Key::Space => {
+                text.sections[1].value.push(' ');
+            },
+            _ => {},
         }
     }
 }

@@ -8,27 +8,27 @@ macro_rules! client_server_events_plugin {
 
         $app.add_event::<bevy_client_server_events::server::SendToClient<$head_type>>().add_systems(
             bevy::prelude::PostUpdate,
-            bevy::prelude::IntoSystemConfigs::run_if(bevy_client_server_events::server::server_sends_messages_to_clients::<$idx, $head_type>, bevy::prelude::resource_exists::<bevy_client_server_events::Server>()),
+            bevy::prelude::IntoSystemConfigs::run_if(bevy_client_server_events::server::server_sends_messages_to_clients::<$idx, $head_type>, bevy::prelude::resource_exists::<bevy_client_server_events::Server>),
         );
 
         $app.add_event::<bevy_client_server_events::server::SendToClients<$head_type>>().add_systems(
             bevy::prelude::PostUpdate,
-            bevy::prelude::IntoSystemConfigs::run_if(bevy_client_server_events::server::server_broadcasts_messages_to_clients::<$idx, $head_type>, bevy::prelude::resource_exists::<bevy_client_server_events::Server>()),
+            bevy::prelude::IntoSystemConfigs::run_if(bevy_client_server_events::server::server_broadcasts_messages_to_clients::<$idx, $head_type>, bevy::prelude::resource_exists::<bevy_client_server_events::Server>),
         );
 
         $app.add_event::<bevy_client_server_events::server::ReceiveFromClient<$head_type>>().add_systems(
             bevy::prelude::PostUpdate,
-            bevy::prelude::IntoSystemConfigs::run_if(bevy_client_server_events::server::server_receives_messages_from_clients::<$idx, $head_type>, bevy::prelude::resource_exists::<bevy_client_server_events::Server>()),
+            bevy::prelude::IntoSystemConfigs::run_if(bevy_client_server_events::server::server_receives_messages_from_clients::<$idx, $head_type>, bevy::prelude::resource_exists::<bevy_client_server_events::Server>),
         );
 
         $app.add_event::<bevy_client_server_events::client::SendToServer<$head_type>>().add_systems(
             bevy::prelude::PostUpdate,
-            bevy::prelude::IntoSystemConfigs::run_if(bevy_client_server_events::client::client_sends_messages_to_server::<$idx, $head_type>, bevy::prelude::resource_exists::<bevy_client_server_events::Client>()),
+            bevy::prelude::IntoSystemConfigs::run_if(bevy_client_server_events::client::client_sends_messages_to_server::<$idx, $head_type>, bevy::prelude::resource_exists::<bevy_client_server_events::Client>),
         );
 
         $app.add_event::<bevy_client_server_events::client::ReceiveFromServer<$head_type>>().add_systems(
             bevy::prelude::PostUpdate,
-            bevy::prelude::IntoSystemConfigs::run_if(bevy_client_server_events::client::client_receives_messages_from_server::<$idx, $head_type>, bevy::prelude::resource_exists::<bevy_client_server_events::Client>()),
+            bevy::prelude::IntoSystemConfigs::run_if(bevy_client_server_events::client::client_receives_messages_from_server::<$idx, $head_type>, bevy::prelude::resource_exists::<bevy_client_server_events::Client>),
         );
     };
 
@@ -39,27 +39,27 @@ macro_rules! client_server_events_plugin {
 
         $app.add_event::<bevy_client_server_events::server::SendToClient<$head_type>>().add_systems(
             bevy::prelude::PostUpdate,
-            bevy::prelude::IntoSystemConfigs::run_if(bevy_client_server_events::server::server_sends_messages_to_clients::<$idx, $head_type>, bevy::prelude::resource_exists::<bevy_client_server_events::Server>()),
+            bevy::prelude::IntoSystemConfigs::run_if(bevy_client_server_events::server::server_sends_messages_to_clients::<$idx, $head_type>, bevy::prelude::resource_exists::<bevy_client_server_events::Server>),
         );
 
         $app.add_event::<bevy_client_server_events::server::SendToClients<$head_type>>().add_systems(
             bevy::prelude::PostUpdate,
-            bevy::prelude::IntoSystemConfigs::run_if(bevy_client_server_events::server::server_broadcasts_messages_to_clients::<$idx, $head_type>, bevy::prelude::resource_exists::<bevy_client_server_events::Server>()),
+            bevy::prelude::IntoSystemConfigs::run_if(bevy_client_server_events::server::server_broadcasts_messages_to_clients::<$idx, $head_type>, bevy::prelude::resource_exists::<bevy_client_server_events::Server>),
         );
 
         $app.add_event::<bevy_client_server_events::server::ReceiveFromClient<$head_type>>().add_systems(
             bevy::prelude::PostUpdate,
-            bevy::prelude::IntoSystemConfigs::run_if(bevy_client_server_events::server::server_receives_messages_from_clients::<$idx, $head_type>, bevy::prelude::resource_exists::<bevy_client_server_events::Server>()),
+            bevy::prelude::IntoSystemConfigs::run_if(bevy_client_server_events::server::server_receives_messages_from_clients::<$idx, $head_type>, bevy::prelude::resource_exists::<bevy_client_server_events::Server>),
         );
 
         $app.add_event::<bevy_client_server_events::client::SendToServer<$head_type>>().add_systems(
             bevy::prelude::PostUpdate,
-            bevy::prelude::IntoSystemConfigs::run_if(bevy_client_server_events::client::client_sends_messages_to_server::<$idx, $head_type>, bevy::prelude::resource_exists::<bevy_client_server_events::Client>()),
+            bevy::prelude::IntoSystemConfigs::run_if(bevy_client_server_events::client::client_sends_messages_to_server::<$idx, $head_type>, bevy::prelude::resource_exists::<bevy_client_server_events::Client>),
         );
 
         $app.add_event::<bevy_client_server_events::client::ReceiveFromServer<$head_type>>().add_systems(
             bevy::prelude::PostUpdate,
-            bevy::prelude::IntoSystemConfigs::run_if(bevy_client_server_events::client::client_receives_messages_from_server::<$idx, $head_type>, bevy::prelude::resource_exists::<bevy_client_server_events::Client>()),
+            bevy::prelude::IntoSystemConfigs::run_if(bevy_client_server_events::client::client_receives_messages_from_server::<$idx, $head_type>, bevy::prelude::resource_exists::<bevy_client_server_events::Client>),
         );
 
         bevy_client_server_events::paste::paste! {

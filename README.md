@@ -161,5 +161,6 @@ A mature alternative with more customizability would be [bevy_renet](https://git
 
 |bevy|bevy_client_server_events|
 |---|---|
+|0.14|0.7|
 |0.12|0.6|
 |0.11|0.5|

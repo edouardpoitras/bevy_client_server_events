@@ -1,6 +1,6 @@
 [package]
 name = "bevy_client_server_events"
-version = "0.6.0"
+version = "0.7.0"
 edition = "2021"
 categories = ["networking", "game", "bevy"]
 description = "Simplified game networking"
@@ -10,11 +10,11 @@ readme = "README.md"
 repository = "https://github.com/edouardpoitras/bevy_client_server_events"
 
 [dependencies]
-bevy = "0.12"
-bevy_renet = "0.0.10"
+bevy = "0.14"
+bevy_renet = "0.0.12"
 bincode = { version = "2.0.0-rc.3", features = ["serde"]}
 paste = "1.0"
-renet = "0.0.14"
+renet = "0.0.16"
 serde = "1.0"
 
 # Full optimizations for dependencies.

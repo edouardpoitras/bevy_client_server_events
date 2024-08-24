@@ -2,7 +2,7 @@
 /// Very simple ping-pong example - IP/port hard-coded as default of 127.0.0.1:5000.
 /// See the chat example for configurable IP/port.
 /// Start the server with `cargo run --example ping -- -s`
-/// Start the client with `cargo run --example pong`
+/// Start the client with `cargo run --example ping`
 ///
 /// With the client window in focus, press `ENTER` to send a Ping.
 /// The server will respond to a Ping event with a Pong event.
@@ -68,11 +68,11 @@ fn update_server(
 }
 
 fn update_client(
-    input: Res<Input<KeyCode>>,
+    input: Res<ButtonInput<KeyCode>>,
     mut ping: EventWriter<SendToServer<Ping>>,
     mut pong: EventReader<ReceiveFromServer<Pong>>,
 ) {
-    if input.just_pressed(KeyCode::Return) {
+    if input.just_pressed(KeyCode::Enter) {
         ping.send(SendToServer { content: Ping });
     }
     for response in pong.read() {

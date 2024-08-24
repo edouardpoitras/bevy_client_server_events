@@ -1,8 +1,8 @@
 ///
 /// Example using various features - IP/port hard-coded as default of 127.0.0.1:5000.
 /// See the chat example for configurable IP/port.
-/// Start the server with `cargo run --example example -- -s`
-/// Start the client with `cargo run --example example`
+/// Start the server with `cargo run --example features -- -s`
+/// Start the client with `cargo run --example features
 ///
 /// The server and client will use encryption to communicate.
 ///
@@ -105,7 +105,7 @@ fn setup_client(mut connect_to_server: EventWriter<ConnectToServer>) {
 }
 
 fn update_server(
-    input: Res<Input<KeyCode>>,
+    input: Res<ButtonInput<KeyCode>>,
     mut start_server_events: EventWriter<StartServer>,
     mut stop_server_events: EventWriter<StopServer>,
     mut player_movement_events: EventReader<ReceiveFromClient<PlayerMovement>>,
@@ -114,7 +114,7 @@ fn update_server(
     if input.just_pressed(KeyCode::Escape) {
         stop_server_events.send(StopServer);
         println!("Stopping server");
-    } else if input.just_pressed(KeyCode::Return) {
+    } else if input.just_pressed(KeyCode::Enter) {
         let key = string_to_key(SHARED_KEY);
         start_server_events.send(StartServer {
             private_key: Some(key),
@@ -133,7 +133,7 @@ fn update_server(
             content: ServerResponse {
                 message: "Player Movement Processed by Server".to_string(),
             },
-        })
+        });
     }
 }
 
@@ -164,7 +164,7 @@ fn log_connections_on_server(
 }
 
 fn update_client(
-    input: Res<Input<KeyCode>>,
+    input: Res<ButtonInput<KeyCode>>,
     mut player_movement_events: EventWriter<SendToServer<PlayerMovement>>,
     mut disconnect_events: EventWriter<DisconnectFromServer>,
     mut connect_events: EventWriter<ConnectToServer>,
@@ -179,7 +179,7 @@ fn update_client(
     } else if input.just_pressed(KeyCode::Escape) {
         disconnect_events.send(DisconnectFromServer);
         println!("Disconnecting from server");
-    } else if input.just_pressed(KeyCode::Return) {
+    } else if input.just_pressed(KeyCode::Enter) {
         let key = string_to_key(SHARED_KEY);
         connect_events.send(ConnectToServer {
             private_key: Some(key),
