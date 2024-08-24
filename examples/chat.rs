@@ -3,7 +3,10 @@
 /// Start the server with `cargo run --example chat -- -s 127.0.0.1 5000`
 /// Start the clients with `cargo run --example chat -- -c 127.0.0.1 5000`
 ///
-use bevy::{input::keyboard::{Key, KeyboardInput}, prelude::*};
+use bevy::{
+    input::keyboard::{Key, KeyboardInput},
+    prelude::*,
+};
 use bevy_client_server_events::{
     client::{ConnectToServer, ReceiveFromServer, SendToServer},
     client_server_events_plugin,
@@ -186,7 +189,13 @@ fn handle_input(
     if keyboard.just_pressed(KeyCode::Backspace) {
         text.sections[1].value.pop();
     }
-    for KeyboardInput { key_code: _, logical_key, state, window: _} in characters.read() {
+    for KeyboardInput {
+        key_code: _,
+        logical_key,
+        state,
+        window: _,
+    } in characters.read()
+    {
         // Only check for characters when the key is pressed.
         if !state.is_pressed() {
             continue;
@@ -196,7 +205,9 @@ fn handle_input(
         // Instead, check for them as separate enum variants.
         match &logical_key {
             Key::Character(character) => {
-                text.sections[1].value.push(character.chars().last().unwrap());
+                text.sections[1]
+                    .value
+                    .push(character.chars().last().unwrap());
             },
             Key::Space => {
                 text.sections[1].value.push(' ');
