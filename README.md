@@ -1,3 +1,7 @@
+# ** DEPRECATED - no longer maintained **
+
+This crate is now deprecated. Consider `bevy_replicon` or `lightyear`.
+
 # Bevy Client Server Events
 
 [![Bevy Client Server Events](https://github.com/edouardpoitras/bevy_client_server_events/actions/workflows/rust.yml/badge.svg?branch=main)](https://github.com/edouardpoitras/bevy_client_server_events/actions/workflows/rust.yml)
